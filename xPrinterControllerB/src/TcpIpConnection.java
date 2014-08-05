@@ -54,11 +54,16 @@ public class TcpIpConnection implements Runnable {
 							responseList.remove(0);
 						}
 						else {cmd=null;}
+						
 					}
 					if(cmd!=null){
-						cmdManager.uartReciveCmd(cmd);
+						cmdManager.connRecived(cmd);
 					}
+					else{
+					}
+					
 				}
+
 			}
 	    });
 

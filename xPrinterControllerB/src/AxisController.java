@@ -12,6 +12,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -24,28 +25,133 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-class AxisControllerItem extends JPanel implements  ActionListener, MouseWheelListener, KeyListener{
+enum SliderControllerType{
+	stepSize,override,velocity
+}
+
+class SliderController extends JSlider implements VentilItem, ChangeListener {
+	String name;
+	CmdManager manag;
+	SliderControllerType type;
+	Dictionary<Integer, JLabel> dict = new Hashtable<Integer, JLabel>(); 
+	public SliderController(CmdManager manag,String name,SliderControllerType type){
+		super(JSlider.HORIZONTAL);
+		this.name=name;
+		this.manag=manag;
+		this.type=type;
+		addChangeListener(this);
+		setPreferredSize(new Dimension(250,50));
+		setBorder(BorderFactory.createTitledBorder(name));
+		manag.addItemParamListner(this);
+		switch(type){
+		case stepSize:
+			int i=0;
+			dict.put(i++, new JLabel("0.01"));
+			dict.put(i++, new JLabel("0.02"));
+			dict.put(i++, new JLabel("0.05"));
+			dict.put(i++, new JLabel("0.1"));
+			dict.put(i++, new JLabel("0.2"));
+			dict.put(i++, new JLabel("0.5"));
+			dict.put(i++, new JLabel("1"));
+			dict.put(i++, new JLabel("2"));
+			dict.put(i++, new JLabel("5"));
+			setPaintLabels(true);
+			setSnapToTicks(true);
+			setMinorTickSpacing(1);
+			setLabelTable(dict );
+			setMaximum(dict.size()-1);
+			break;
+		case override:
+			setMaximum(100);
+			break;
+		case velocity:
+			setMaximum(500);
+			break;
+		}
+		
+	}
+
+	public void sendActualValue() {
+		manag.sendCmd(name+"="+getItemValue());
+	}
+
+	public void recievedValue(String val) {
+		setItemValue(val);
+	}
+
+	public void setItemValue(String val) {
+		double dVal=Double.parseDouble(val);
+		int index=0;
+		if(type==SliderControllerType.stepSize){
+			Enumeration<JLabel>  elems= dict.elements();
+			while(elems.hasMoreElements()){
+				if(dVal==Double.parseDouble( elems.nextElement().getText())){
+					break;
+				}
+				index++;
+			}
+		}
+		else{
+			index=(int)dVal;
+		}
+		removeChangeListener(this);
+		setValue(index);
+		addChangeListener(this);
+	}
+
+	public void stateChanged(ChangeEvent arg0) {
+		if(!getValueIsAdjusting()){
+			sendActualValue();
+		}
+		
+	}
+
+	public String getItemValue() {
+		if(type==SliderControllerType.stepSize){
+			return dict.get(getValue()).getText();
+		}
+		else{
+			return getValue()+"";
+		}
+	}
+
+	@Override
+	public String getItemName() {
+		
+		return name;
+	}
+	
+}
+
+class AxisControllerItem extends JPanel implements VentilItem, ActionListener, MouseWheelListener, KeyListener{
 	AxisController controller;
 	JToggleButton axisSelect;
 	JTextField axisPos;
 	JLabel axisNameLabel;
 	int index;
+	String name;
 	boolean releasedButton=true;
-	public AxisControllerItem(AxisController controller,String axisName,int index){
+	CmdManager manag;
+	public AxisControllerItem(AxisController controller,CmdManager manag,String name,int index){
+		this.name=name;
 		this.index=index;
+		this.manag=manag;
 		this.controller=controller;
-		axisSelect=new JToggleButton(axisName);
+		axisSelect=new JToggleButton(name);
 		axisSelect.addMouseWheelListener(this);
 		axisSelect.addKeyListener(this);
 		axisSelect.addActionListener(this);
 		axisPos=new JTextField();
-		axisNameLabel=new JLabel(axisName);
+		axisNameLabel=new JLabel(name);
 		axisNameLabel.setFont(axisNameLabel.getFont().deriveFont(30));
 		axisPos.addActionListener(this);
 		axisPos.setPreferredSize(new Dimension(100,25));
 		axisSelect.setPreferredSize(new Dimension(80,25));
 		axisNameLabel.setPreferredSize(new Dimension(50,25));
+		manag.addItemPoolingListner(this);
 		setLayout(new FlowLayout());
 		add(axisNameLabel);
 		add(axisPos);
@@ -88,9 +194,7 @@ class AxisControllerItem extends JPanel implements  ActionListener, MouseWheelLi
 	}
 	
 	public void actualizePos(double newPos){
-		System.out.println("newPos:"+newPos);
 		if(!axisPos.isFocusOwner()){
-			System.out.println("SetPos");
 			axisPos.setText(newPos+"");
 		}
 	}
@@ -107,22 +211,25 @@ class AxisControllerItem extends JPanel implements  ActionListener, MouseWheelLi
 		axisSelect.addActionListener(this);
 	}
 
-
-	public void sendActualValue() {
-
+	public void setValue(String val) {
+		actualizePos(Double.parseDouble(val));
 	}
 
-	public void recievedValue(int val) {
-
+	public String getItemValue(){
+		return axisPos.getText();
 	}
 
-
-	public void setValue(int val) {
+	public void recievedValue(String val) {
+		setValue(val);
 		
 	}
 
-	public int getValue(){
-		return 0;
+	public void setItemValue(String val) {
+		setValue(val);
+	}
+
+	public String getItemName() {
+		return name;
 	}
 }
 
@@ -130,11 +237,14 @@ public class AxisController extends JPanel{
 	AxisControllerItem[] axisItems;
 	String axisNames[];
 	int axisSelected=-1;
-	JSlider stepSize;
-
-	JSlider override;
-	Dictionary<Integer, JLabel> dict = new Hashtable<Integer, JLabel>(); 
-	public AxisController(String axisNames[]){
+	SliderController stepSize;
+	SliderController velocity;
+	SliderController override;
+	
+	CmdManager manag;
+	 
+	public AxisController(String axisNames[],CmdManager manag){
+		this.manag=manag;
 		this.axisNames=axisNames;
 		GridBagLayout gridLayout=new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
@@ -143,50 +253,34 @@ public class AxisController extends JPanel{
 		
 		int index=0;
 		for(String axisName:axisNames){
-			axisItems[index]=new AxisControllerItem(this,axisName,index);
+			axisItems[index]=new AxisControllerItem(this,manag,axisName,index);
 			c.gridy=index;
 			add(axisItems[index],c);
 			index++;
 		}
-		
-		
-		int i=1;
-		dict.put(i++, new JLabel("0.01"));
-		dict.put(i++, new JLabel("0.02"));
-		dict.put(i++, new JLabel("0.05"));
-		dict.put(i++, new JLabel("0.1"));
-		dict.put(i++, new JLabel("0.2"));
-		dict.put(i++, new JLabel("0.5"));
-		dict.put(i++, new JLabel("1"));
-		dict.put(i++, new JLabel("2"));
-		dict.put(i++, new JLabel("5"));
-		
-		 stepSize = new JSlider(JSlider.HORIZONTAL,1,dict.size(),1);
-		 
-		 override=new JSlider(JSlider.HORIZONTAL,1,100,1);
-		 stepSize.setPreferredSize(new Dimension(250,50));
-		 override.setPreferredSize(new Dimension(250,50));
-		stepSize.setLabelTable(dict );
-		stepSize.setPaintLabels(true);
-		stepSize.setSnapToTicks(true);
-		stepSize.setMinorTickSpacing(1);
+
+		stepSize=new SliderController(manag,"StepSize",SliderControllerType.stepSize);
+		override=new SliderController(manag,"Override",SliderControllerType.override);
+		velocity=new SliderController(manag,"Velocity",SliderControllerType.velocity);
+
 		c.gridy=index++;
-		stepSize.setBorder(BorderFactory.createTitledBorder("Step size"));
-		
-		override.setBorder(BorderFactory.createTitledBorder("Overrride"));
 		add(stepSize,c);
 		c.gridy=index++;
 		add(override,c);
+		c.gridy=index++;
+		add(velocity,c);
 	}
 	
 	public void incrementPos(int index,double pos){
-		double posInc=pos* Double.parseDouble( dict.get(stepSize.getValue()).getText());
+		double posInc=pos* Double.parseDouble( stepSize.getItemValue());
 		if(axisSelected==index){
 			System.out.println(axisNames[index]+"+="+posInc);
 		}
 	}
 	
-
+	public double getStepSize(){
+		return Double.parseDouble(stepSize.getItemValue());
+	}
 	
 	public void validatePos(int index,double pos){
 		System.out.println(axisNames[index]+pos);
@@ -202,7 +296,7 @@ public class AxisController extends JPanel{
 
 	public static void main(String[] args) {
 		String[] axisNames={"X","Y","Z"};
-		AxisController axisController =new AxisController(axisNames);
+		AxisController axisController =new AxisController(axisNames,null);
 
 		JFrame frame=new JFrame("Position Controller");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

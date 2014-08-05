@@ -41,13 +41,13 @@ public class MainWindow extends JFrame {
 	CmdManager manag;
 	JTabbedPane tabbedPane = new JTabbedPane();
 	String[] axisNames={"X","Y","Z"};
-	AxisController controller=new AxisController(axisNames);
+	AxisController controller;
 
-	//ManualMove move=new ManualMove()
 	int num = 2;
 
 	public MainWindow(String args[]) {
 		super("Ventil steerung");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		if(args.length>0){
 			hostName=args[0];
 		}
@@ -55,9 +55,9 @@ public class MainWindow extends JFrame {
 			portNumber=Integer.parseInt( args[1]);
 		}
 		manag=new CmdManager(hostName,portNumber);
+		controller=new AxisController(axisNames,manag);
 		JOptionPane.setRootFrame(this);
-		// JLabel LabelHeizungBehelter=new JLabel("Heizung Behälter");
-		// JLabel LabelHeizungVentil=new JLabel("Heizung Ventil");
+
 		test = new JPanel();
 		BoxLayout box=new BoxLayout(test, BoxLayout.Y_AXIS);
 		test.setLayout(box);
@@ -69,25 +69,17 @@ public class MainWindow extends JFrame {
 		test.add(new StandardVentilItem(manag,"UV_PowerBit1",VentilItemType.CheckBox));
 		test.add(new StandardVentilItem(manag,"UV_PowerBit2",VentilItemType.CheckBox));
 		test.add(new StandardVentilItem(manag,"UV_ShutterRun",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"UV_ShutterClosed",VentilItemType.Label));
 		test.add(new StandardVentilItem(manag,"Corona_Soll",VentilItemType.Spinner));
-		test.add(new StandardVentilItem(manag,"Corona_Links",VentilItemType.Button));
-		test.add(new StandardVentilItem(manag,"Corona_Rechts",VentilItemType.Button));
+		test.add(new StandardVentilItem(manag,"Corona_Left",VentilItemType.Button));
+		test.add(new StandardVentilItem(manag,"Corona_Right",VentilItemType.Button));
 		test.add(new StandardVentilItem(manag,"Corona_Info",VentilItemType.Button));
-		test.add(new StandardVentilItem(manag, "Corona_Start",VentilItemType.Button));
-		test.add(new StandardVentilItem(manag,"Corona_Stop",VentilItemType.Button));
-			 
-		//test.add(new VentilItem(manag,"sf",VentilItemType.Label));
 	
-
 		tabbedPane.addTab("Beckhoff", test);
 		tabbedPane.addTab("Position", controller);
 		
 		
 		 getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
-		// tabbedPane.addTab("Zeit & Spannung", null);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(true);
 		
 		setSize(new Dimension(300,350));
@@ -119,9 +111,6 @@ public class MainWindow extends JFrame {
 
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		MainWindow steuerung = new MainWindow(args);
-		steuerung.setVisible(true);
-
+		new MainWindow(args);
 	}
 }

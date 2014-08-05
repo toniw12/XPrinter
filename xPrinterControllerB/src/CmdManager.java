@@ -22,9 +22,8 @@ public class CmdManager implements ActionListener {
 	TcpIpConnection connection;
 
 	Random randomGenerator = new Random();
-	Map<String, StandardVentilItem> valListner = new TreeMap<String, StandardVentilItem>();
-	Map<String, StandardVentilItem> paramListner = new TreeMap<String, StandardVentilItem>();
-	Map<String, StandardVentilItem> poolingListner = new TreeMap<String, StandardVentilItem>();
+	Map<String, VentilItem> paramListner = new TreeMap<String, VentilItem>();
+	Map<String, VentilItem> poolingListner = new TreeMap<String, VentilItem>();
 
 	public CmdManager(String host,int port) {
 		connection = new TcpIpConnection(this, host, port);
@@ -44,24 +43,21 @@ public class CmdManager implements ActionListener {
 		connection.write("@1 " + name+"?");
 	}
 
-	public void addValListner(StandardVentilItem item) {	
-		valListner.put(item.name , item);
-	}
 
-	public void addItemParamListner(StandardVentilItem item) {
-		connection.write("addEventListener("+item.name+")");
-		paramListner.put(item.name , item);
+	public void addItemParamListner(VentilItem item) {
+		connection.write("addEventListener("+item.getItemName()+")");
+		paramListner.put(item.getItemName() , item);
 		//requestValue(item.name);
 	}
 
-	public void addItemPoolingListner(StandardVentilItem item) {
-		poolingListner.put(item.getFullName(), item);
+	public void addItemPoolingListner(VentilItem item) {
+		poolingListner.put(item.getItemName(), item);
 		addItemParamListner(item);
 	}
 
-	public void uartReciveCmd(String in) {
+	public void connRecived(String in) {
 		CmdItem cmd = decodeCmd(in);
-		StandardVentilItem item;
+		VentilItem item;
 		if (cmd != null) {
 			String cmdName = cmd.name;
 			item = paramListner.get(cmdName);
@@ -101,15 +97,14 @@ public class CmdManager implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		int randomVal = randomGenerator.nextInt();
-		Iterator<Map.Entry<String, StandardVentilItem>> it = poolingListner.entrySet()
+		Iterator<Map.Entry<String, VentilItem>> it = poolingListner.entrySet()
 				.iterator();
 		while (it.hasNext()) {
-			StandardVentilItem item;
-			Map.Entry<String, StandardVentilItem> pairs = (Map.Entry<String, StandardVentilItem>) it
+			VentilItem item;
+			Map.Entry<String,VentilItem> pairs = (Map.Entry<String,VentilItem>) it
 					.next();
 			item = pairs.getValue();
-			sendCmd(item.getFullName() + "?");
+			requestValue( item.getItemName() );
 		}
 	}
 

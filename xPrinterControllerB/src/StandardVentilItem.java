@@ -46,7 +46,6 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 
 			break;
 		case Label:
-			manag.addValListner(this);
 			manag.addItemPoolingListner(this);
 			label = new JLabel();
 			label.setText("0");
@@ -73,7 +72,7 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		if(type==VentilItemType.Spinner){
-			int val=getValue();
+			int val=Integer.parseInt(getItemValue());
 			spinner.setValue(val-e.getWheelRotation()*(val/100+1));	
 		}
 	}
@@ -85,18 +84,18 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 
 	
 	public void sendActualValue(){
-		manag.sendCmd(new CmdItem(name,getValue()+""));
+		manag.sendCmd(new CmdItem(name,getItemValue()+""));
 
 	}
 	
 	public void recievedValue(String val){
-		setValue(val);
+		setItemValue(val);
 	}
 	
-	public void setValue(String val){
+	public void setItemValue(String val){
 		switch (type) {
 		case Spinner:
-			if (val != getValue()+"") {
+			if (val != getItemValue()+"") {
 				spinner.removeChangeListener(this);
 				spinner.setValue(Integer.parseInt( val));
 				spinner.addChangeListener(this);
@@ -122,24 +121,24 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		return name;
 	}
 	
-	public int getValue(){
+	public String getItemValue(){
 		switch (type) {
 		case Spinner:
-			return ((Number)spinner.getValue()).intValue();
+			return ((Number)spinner.getValue()).intValue()+"";
 		case Label:
-			return Integer.parseInt( label.getText());
+			return label.getText();
 		case CheckBox:
 			int select=0;
 			if(checkBox.isSelected()){
 				select=1;
 			}
-			return select;
+			return select+"";
 		case Button:
 
-			return 1;
+			return "1";
 
 		}
-		return 0;
+		return "0";
 	}
 
 	public void itemStateChanged(ItemEvent e) {
@@ -151,5 +150,9 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		
 		sendActualValue();
 		
+	}
+
+	public String getItemName() {
+		return name;
 	}
 }
