@@ -1,0 +1,9 @@
+[core]
+	symlinks = false
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = false
+[remote "origin"]
+	url = file:///H:\\git
+	fetch = +refs/heads/*:refs/remotes/origin/*
