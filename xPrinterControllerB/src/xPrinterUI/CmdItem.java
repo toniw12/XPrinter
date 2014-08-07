@@ -1,8 +1,6 @@
 package xPrinterUI;
 
 
-
-
 public class CmdItem{
 
 	public CmdItem(String name,String value) {
