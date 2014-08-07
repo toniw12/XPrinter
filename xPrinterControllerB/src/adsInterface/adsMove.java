@@ -8,7 +8,7 @@ import de.beckhoff.jni.Convert;
 
 
 
-public class adsMove extends comandInterpreter {
+public class adsMove extends comandInterpreter implements Runnable{
 	Object moveSema=new Object();
 	static Pattern gcodePattern = Pattern
 			.compile("([A-Z])(\\+=|-=)?([-+]?[0-9]*\\.?[0-9]+)");
@@ -20,6 +20,7 @@ public class adsMove extends comandInterpreter {
 	double stepSize=0.01;
 	double override=0;
 	int nextStatus=0;
+	long lastCmdTime;
 	Thread ownerThread=null;
 	adsConfigItem[] actPosAdsSetting=new adsConfigItem[numAxis];
 
@@ -53,7 +54,7 @@ public class adsMove extends comandInterpreter {
 		nextStatusAdsSetting = ads.adsGetConfig("nextStatus");
 		nextStatus=getStatus();
 		
-		
+		new Thread(this).start();
 	}
 	
 	public String getVariable(String varName) throws Exception{
@@ -135,10 +136,10 @@ public class adsMove extends comandInterpreter {
 				else{
 					switch (m.group(2)) {
 					case "+=":
-						newNextPos[axisN] = currentPos[axisN]+ val;
+						newNextPos[axisN] = currentPos[axisN]+ val; // TODO change for thread safety
 						break;
 					case "-=":
-						newNextPos[axisN] = currentPos[axisN]- val;
+						newNextPos[axisN] = currentPos[axisN]- val; // TODO change for thread safety
 						break;
 					}
 				}
@@ -150,6 +151,14 @@ public class adsMove extends comandInterpreter {
 			return null;
 		}
 		synchronized (moveSema) {
+			
+			if(ownerThread==null){
+				ownerThread=Thread.currentThread();
+			}
+			else if(ownerThread!=Thread.currentThread()){
+				throw new Exception("The motion Card is used by an oher Client try later");
+			}
+			
 			velocity = new_velocity;
 			double distance = 0;
 			ByteBuffer adsBuffer = ByteBuffer.allocate(2*Double.SIZE*numAxis);
@@ -190,6 +199,7 @@ public class adsMove extends comandInterpreter {
 			nextStatus=nextStatus==0?1:0;
 			setNextStatus(nextStatus);
 			waitStatus(nextStatus);
+			lastCmdTime = System.currentTimeMillis();
 		}
 		return "Movement done";
 
@@ -219,6 +229,24 @@ public class adsMove extends comandInterpreter {
 		ads.write(nextStatusAdsSetting, status);
 	}
 
+	public void run() {
+		while(true){
+			Thread.sleep(250);
+			synchronized (moveSema) {
+				if (ownerThread != null) {
+					// TODO read if execution terminated
+					boolean terminated = false;
+					if (!terminated) {
+						lastCmdTime = System.currentTimeMillis();
+					} else {
+						if ((System.currentTimeMillis() - lastCmdTime) >= 2000) {
+							ownerThread = null;
+						}
+					}
+				}
+			}
+		}	
+	}
 	public static void main(String args[]) {
 		try {
 			adsConnection config = new adsConnection("ADS_settings.txt");
@@ -229,4 +257,6 @@ public class adsMove extends comandInterpreter {
 			e.printStackTrace();
 		}
 	}
+
+
 }
