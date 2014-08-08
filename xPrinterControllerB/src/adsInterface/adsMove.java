@@ -63,6 +63,17 @@ public class adsMove extends comandInterpreter implements Runnable{
 			return String.format("X=%.3f", ads.readDouble( actPosAdsSetting[0]));
 		case "Y":	
 			return String.format("Y=%.3f", ads.readDouble( actPosAdsSetting[1]));
+		case "Move_owner":
+			if(ownerThread==null){
+				return "Free";
+			}
+			else if(ownerThread==Thread.currentThread()){
+				return "You";
+			}
+			else{
+				return "Someone else";
+			}
+			
 		default:
 			return null;
 		}

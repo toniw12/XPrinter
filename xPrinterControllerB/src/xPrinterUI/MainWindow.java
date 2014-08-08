@@ -72,9 +72,9 @@ public class MainWindow extends JFrame {
 		test.add(new StandardVentilItem(manag,"UV_PowerBit2",VentilItemType.CheckBox));
 		test.add(new StandardVentilItem(manag,"UV_ShutterRun",VentilItemType.CheckBox));
 		test.add(new StandardVentilItem(manag,"Corona_Soll",VentilItemType.Spinner));
-		test.add(new StandardVentilItem(manag,"Corona_Left",VentilItemType.Button));
-		test.add(new StandardVentilItem(manag,"Corona_Right",VentilItemType.Button));
-		test.add(new StandardVentilItem(manag,"Corona_Info",VentilItemType.Button));
+		test.add(new StandardVentilItem(manag,"Corona_Left",VentilItemType.CmdButton));
+		test.add(new StandardVentilItem(manag,"Corona_Right",VentilItemType.CmdButton));
+		test.add(new StandardVentilItem(manag,"Corona_Info",VentilItemType.CmdButton));
 		test.add(new StandardVentilItem(manag,"xActPos",VentilItemType.Label));
 		test.add(new StandardVentilItem(manag,"yActPos",VentilItemType.Label));
 		

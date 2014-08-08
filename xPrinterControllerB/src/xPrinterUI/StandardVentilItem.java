@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
@@ -15,20 +17,23 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
 enum VentilItemType {
-    Spinner,Label,CheckBox,Button
+    Spinner,Label,CheckBox,CmdButton,TgButton,IoButton
 }
 
-class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListener, ChangeListener, ItemListener, ActionListener{
+class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListener, ChangeListener, ItemListener, ActionListener, KeyListener{
 	CmdManager manag;
 	JSpinner spinner;
 	JLabel label;
 	JCheckBox checkBox;
 	JButton button;
+	JToggleButton tgButton;
 	VentilItemType type;
 	String name;
 	public StandardVentilItem(CmdManager manag,String name,VentilItemType type){
@@ -51,8 +56,8 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 			manag.addItemPoolingListner(this);
 			label = new JLabel();
 			label.setText("0");
+			label.setBorder(new TitledBorder(name));
 			add(label,BorderLayout.CENTER);
-			add(new JLabel(name),BorderLayout.WEST);
 			break;
 		case CheckBox:
 			checkBox = new JCheckBox();
@@ -61,11 +66,19 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 			add(new JLabel(name),BorderLayout.WEST);
 
 			break;
-		case Button:
+		case IoButton:
+		case CmdButton:
 			button = new JButton(name);
 			button.addItemListener(this);
 			button.addActionListener(this);
+			button.addKeyListener(this);
 			add(button,BorderLayout.CENTER);
+			break;
+		case TgButton:
+			tgButton=new JToggleButton(name);
+			tgButton.addItemListener(this);
+			tgButton.addActionListener(this);
+			add(tgButton,BorderLayout.CENTER);
 			break;
 		}
 		manag.addItemParamListner(this);
@@ -104,7 +117,7 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 			}
 			break;
 		case Label:
-			label.setText(val+"");
+			label.setText(val);
 			break;
 		case CheckBox:
 			checkBox.removeItemListener(this);
@@ -115,9 +128,19 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 				checkBox.setSelected(false);
 			}
 			checkBox.addItemListener(this);
+			break;
+		case TgButton:
+			//tgButton.removeActionListener(this);
+			if(Integer.parseInt( val)==1){
 
+				tgButton.setSelected(true);
+			}
+			else{
+				tgButton.setSelected(false);
+			}
+			//tgButton.addActionListener(this);
+			break;
 		}
-
 	}
 	public String getFullName(){
 		return name;
@@ -135,10 +158,12 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 				select=1;
 			}
 			return select+"";
-		case Button:
-
+		case CmdButton:
 			return "1";
-
+		case IoButton:
+		case TgButton:	
+			return button.isSelected()?"1":"0";
+			
 		}
 		return "0";
 	}
@@ -149,12 +174,32 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		
-		sendActualValue();
-		
+		if(type==VentilItemType.CmdButton||type==VentilItemType.TgButton){
+			sendActualValue();
+		}
 	}
 
 	public String getItemName() {
 		return name;
+	}
+
+	public void keyPressed(KeyEvent arg0) {
+		if(type==VentilItemType.IoButton){
+			sendActualValue();
+		}
+	}
+
+
+	public void keyReleased(KeyEvent arg0) {
+		if(type==VentilItemType.IoButton){
+			sendActualValue();
+		}
+	}
+
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

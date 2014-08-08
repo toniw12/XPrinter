@@ -72,8 +72,7 @@ class SliderController extends JSlider implements VentilItem, ChangeListener {
 		case velocity:
 			setMaximum(500);
 			break;
-		}
-		
+		}	
 	}
 
 	public void sendActualValue() {
@@ -94,10 +93,8 @@ class SliderController extends JSlider implements VentilItem, ChangeListener {
 				index--;
 				if(dVal==Double.parseDouble( elems.nextElement().getText())){
 					break;
-				}
-				
+				}		
 			}
-
 		}
 		else{
 			index=(int)dVal;
@@ -110,8 +107,7 @@ class SliderController extends JSlider implements VentilItem, ChangeListener {
 	public void stateChanged(ChangeEvent arg0) {
 		if(!getValueIsAdjusting()){
 			sendActualValue();
-		}
-		
+		}	
 	}
 
 	public String getItemValue() {
@@ -123,12 +119,9 @@ class SliderController extends JSlider implements VentilItem, ChangeListener {
 		}
 	}
 
-	@Override
-	public String getItemName() {
-		
+	public String getItemName() {		
 		return name;
-	}
-	
+	}	
 }
 
 class AxisControllerItem extends JPanel implements VentilItem, ActionListener, MouseWheelListener, KeyListener{
@@ -242,12 +235,14 @@ public class AxisController extends JPanel{
 	AxisControllerItem[] axisItems;
 	String axisNames[];
 	int axisSelected=-1;
+	CmdManager manag;
 	SliderController stepSize;
 	SliderController velocity;
 	SliderController override;
 	
-	CmdManager manag;
-	 
+	StandardVentilItem axisActive=new StandardVentilItem(manag, "axisActive", VentilItemType.TgButton);
+	StandardVentilItem axisOwner=new StandardVentilItem(manag, "axisOwner", VentilItemType.Label);
+	
 	public AxisController(String axisNames[],CmdManager manag){
 		this.manag=manag;
 		this.axisNames=axisNames;
@@ -256,11 +251,17 @@ public class AxisController extends JPanel{
 		setLayout(gridLayout);
 		axisItems=new AxisControllerItem[axisNames.length];
 		
+		add(axisActive,c);
+		c.gridy++;
+		
+		add(axisOwner,c);
+		c.gridy++;
+		
 		int index;
 		for( index=0;index<axisNames.length;index++){
 			axisItems[index]=new AxisControllerItem(this,manag,axisNames[index],index);
-			c.gridy=index;
 			add(axisItems[index],c);
+			c.gridy++;
 		}
 
 		stepSize=new SliderController(manag,"StepSize",SliderControllerType.stepSize);
