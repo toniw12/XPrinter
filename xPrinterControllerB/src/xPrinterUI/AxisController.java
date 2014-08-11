@@ -47,7 +47,8 @@ class SliderController extends JSlider implements VentilItem, ChangeListener {
 		addChangeListener(this);
 		setPreferredSize(new Dimension(250,50));
 		setBorder(BorderFactory.createTitledBorder(name));
-		manag.addItemParamListner(this);
+		manag.addEventListner(this);
+		//manag.addItemPoolingListner(this);
 		switch(type){
 		case stepSize:
 			int i=0;
@@ -76,7 +77,7 @@ class SliderController extends JSlider implements VentilItem, ChangeListener {
 	}
 
 	public void sendActualValue() {
-		manag.sendCmd(name+"="+getItemValue());
+		manag.sendCmd(this);
 	}
 
 	public void recievedValue(String val) {
@@ -105,7 +106,7 @@ class SliderController extends JSlider implements VentilItem, ChangeListener {
 	}
 
 	public void stateChanged(ChangeEvent arg0) {
-		if(!getValueIsAdjusting()){
+		if(!getValueIsAdjusting()||(type==SliderControllerType.override)){
 			sendActualValue();
 		}	
 	}
@@ -240,17 +241,23 @@ public class AxisController extends JPanel{
 	SliderController velocity;
 	SliderController override;
 	
-	StandardVentilItem axisActive=new StandardVentilItem(manag, "axisActive", VentilItemType.TgButton);
-	StandardVentilItem axisOwner=new StandardVentilItem(manag, "axisOwner", VentilItemType.Label);
+	StandardVentilItem axisActive;
+	StandardVentilItem axisOwner;
 	
 	public AxisController(String axisNames[],CmdManager manag){
 		this.manag=manag;
 		this.axisNames=axisNames;
+
 		GridBagLayout gridLayout=new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		setLayout(gridLayout);
-		axisItems=new AxisControllerItem[axisNames.length];
 		
+		axisActive=new StandardVentilItem(manag, "MotionActive", VentilItemType.TgButton);
+		axisOwner=new StandardVentilItem(manag, "Move_owner", VentilItemType.Label);
+		manag.removeEventListner(axisOwner);
+		
+		axisItems=new AxisControllerItem[axisNames.length];
+		c.gridy++;
 		add(axisActive,c);
 		c.gridy++;
 		
@@ -268,11 +275,11 @@ public class AxisController extends JPanel{
 		override=new SliderController(manag,"Override",SliderControllerType.override);
 		velocity=new SliderController(manag,"Velocity",SliderControllerType.velocity);
 
-		c.gridy=index++;
+		c.gridy++;
 		add(stepSize,c);
-		c.gridy=index++;
+		c.gridy++;
 		add(override,c);
-		c.gridy=index++;
+		c.gridy++;
 		add(velocity,c);
 	}
 	

@@ -81,7 +81,7 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 			add(tgButton,BorderLayout.CENTER);
 			break;
 		}
-		manag.addItemParamListner(this);
+		manag.addEventListner(this);
 	}
 	
 
@@ -99,7 +99,7 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 
 	
 	public void sendActualValue(){
-		manag.sendCmd(new CmdItem(name,getItemValue()+""));
+		manag.sendCmd(this);
 
 	}
 	
@@ -130,15 +130,16 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 			checkBox.addItemListener(this);
 			break;
 		case TgButton:
-			//tgButton.removeActionListener(this);
+			tgButton.removeActionListener(this);
 			if(Integer.parseInt( val)==1){
-
+				System.out.println("set selected True");
 				tgButton.setSelected(true);
 			}
 			else{
+				System.out.println("set selected False");
 				tgButton.setSelected(false);
 			}
-			//tgButton.addActionListener(this);
+			tgButton.addActionListener(this);
 			break;
 		}
 	}
@@ -161,8 +162,9 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		case CmdButton:
 			return "1";
 		case IoButton:
-		case TgButton:	
 			return button.isSelected()?"1":"0";
+		case TgButton:	
+			return tgButton.isSelected()?"1":"0";
 			
 		}
 		return "0";
@@ -176,6 +178,7 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 	public void actionPerformed(ActionEvent e) {
 		if(type==VentilItemType.CmdButton||type==VentilItemType.TgButton){
 			sendActualValue();
+			System.out.println("send value "+getItemValue());
 		}
 	}
 

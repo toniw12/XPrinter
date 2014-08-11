@@ -202,6 +202,12 @@ public class adsConnection extends comandInterpreter{
 		writeAdsItem(adsItem, new JNIByteBuffer(data));
 	}
 
+	public void write(adsConfigItem adsItem, boolean var) throws Exception {
+		if(adsItem.vType!=varType.BIT){throw new Exception("cannot write a BIT to:"+adsItem.cmdName);}
+		if(adsItem.iType==ioType.R){throw new Exception("cannot write to readonly variable :"+adsItem.cmdName);}
+		writeAdsItem(adsItem, new JNIByteBuffer(Convert.BoolToByteArr(var)));
+	}
+	
 	public void write(adsConfigItem adsItem, int var) throws Exception {
 		if(adsItem.vType!=varType.INT){throw new Exception("cannot write a INT to:"+adsItem.cmdName);}
 		if(adsItem.iType==ioType.R){throw new Exception("cannot write to readonly variable :"+adsItem.cmdName);}
@@ -212,6 +218,19 @@ public class adsConnection extends comandInterpreter{
 		if(adsItem.vType!=varType.LREAL){throw new Exception("cannot write a LREAL to:"+adsItem.cmdName);}
 		if(adsItem.iType==ioType.R){throw new Exception("cannot write to readonly variable :"+adsItem.cmdName);}
 		writeAdsItem(adsItem, new JNIByteBuffer(Convert.DoubleToByteArr(var)));
+	}
+	
+	public boolean readBit(adsConfigItem adsItem) throws Exception {
+		if(adsItem.vType!=varType.BIT){throw new Exception("cannot read a BIT from:"+adsItem.cmdName);}
+		if(adsItem.iType==ioType.W){throw new Exception("cannot read to writeonly variable :"+adsItem.cmdName);}
+		ByteBuffer buffer = readAdsItem(adsItem);
+		if(buffer.capacity()==Byte.SIZE / Byte.SIZE){
+			return buffer.get()==1?true:false;
+		}
+		else{
+			throw new Exception("Cannot get an Integer from '"
+					+ adsItem.cmdName + "'");
+		}
 	}
 
 	public int readInt(adsConfigItem adsItem) throws Exception {
@@ -229,7 +248,6 @@ public class adsConnection extends comandInterpreter{
 			throw new Exception("Cannot get an Integer from '"
 					+ adsItem.cmdName + "'");
 		}
-
 	}
 
 	public double readDouble(adsConfigItem adsItem) throws Exception {
@@ -334,21 +352,6 @@ public class adsConnection extends comandInterpreter{
 			}
 		} else {
 			return null;
-			// throw new Exception("Cannot find variable " + varName);
-		}
-
-	}
-	public void run(){
-		try {
-
-			adsConnection config=this;
-
-			while(true){
-				Thread.sleep(100);
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
