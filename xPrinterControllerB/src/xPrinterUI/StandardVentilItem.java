@@ -42,7 +42,7 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		this.name=name;
 		
 		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(100,20));
+		setPreferredSize(new Dimension(100,30));
 		switch (type) {
 		case Spinner:
 			spinner = new JSpinner();
@@ -69,14 +69,12 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		case IoButton:
 		case CmdButton:
 			button = new JButton(name);
-			button.addItemListener(this);
 			button.addActionListener(this);
 			button.addKeyListener(this);
 			add(button,BorderLayout.CENTER);
 			break;
 		case TgButton:
 			tgButton=new JToggleButton(name);
-			tgButton.addItemListener(this);
 			tgButton.addActionListener(this);
 			add(tgButton,BorderLayout.CENTER);
 			break;
@@ -171,7 +169,6 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 	}
 
 	public void itemStateChanged(ItemEvent e) {
-		 
 		sendActualValue();
 	}
 

@@ -34,7 +34,7 @@ public class CmdManager implements ActionListener {
 	}
 
 	public void sendCmd(String cmd) {
-		connection.write("@1 " + cmd);
+		connection.write( cmd);
 	}
 	public void sendCmd(VentilItem cmd) {
 		if(paramListner.containsKey(cmd.getItemName())){

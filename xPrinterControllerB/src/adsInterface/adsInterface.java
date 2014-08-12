@@ -48,7 +48,9 @@ public class adsInterface extends comandInterpreter implements Runnable {
 	public adsInterface(BufferedReader inputStream,PrintStream outputStream, comandInterpreter[] cmdInerp,variableListener listener) throws IOException {
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-		this.cmdInerp=cmdInerp;
+		this.cmdInerp= new comandInterpreter[cmdInerp.length+1];
+		System.arraycopy(cmdInerp, 0, this.cmdInerp, 1, cmdInerp.length);
+		this.cmdInerp[0]=this;
 		this.listener=listener;
 	}
 	
@@ -66,8 +68,9 @@ public class adsInterface extends comandInterpreter implements Runnable {
 	public static void main(String[] args) {
 		try {
 			adsConnection ads=new adsConnection("ADS_settings.txt");
-			comandInterpreter[] cmdInerp={ads,new adsMove(ads),new Corona()};
 			variableListener listener=new variableListener();
+			comandInterpreter[] cmdInerp={listener,ads,new adsMove(ads),new Corona()};
+
 			ServerSocket socketServeur = new ServerSocket(port);
 			System.out.println("MultipleSocketServer Initialized");
 
@@ -128,17 +131,11 @@ public class adsInterface extends comandInterpreter implements Runnable {
 				String retMsg="";
 				try {
 					boolean comandInterpreted=false;
-					retMsg = sendCmd(cmdLine);
-					if(retMsg!=null) {
-						comandInterpreted=true;
-					}
-					else{
-						for(comandInterpreter interp:cmdInerp){
-							retMsg = interp.sendCmd(cmdLine);
-							if(retMsg!=null) {
-								comandInterpreted=true;
-								break;
-							}
+					for (comandInterpreter interp : cmdInerp) {
+						retMsg = interp.sendCmd(cmdLine, cmdId);
+						if (retMsg != null) {
+							comandInterpreted = true;
+							break;
 						}
 					}
 					if (!comandInterpreted){

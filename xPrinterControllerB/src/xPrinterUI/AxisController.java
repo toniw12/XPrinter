@@ -20,6 +20,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -29,6 +30,8 @@ import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 enum SliderControllerType{
 	stepSize,override,velocity
@@ -125,13 +128,15 @@ class SliderController extends JSlider implements VentilItem, ChangeListener {
 	}	
 }
 
-class AxisControllerItem extends JPanel implements VentilItem, ActionListener, MouseWheelListener, KeyListener{
+class AxisControllerItem extends JPanel implements VentilItem, ActionListener, MouseWheelListener, KeyListener, DocumentListener{
 	AxisController controller;
 	JToggleButton axisSelect;
 	JTextField axisPos;
-	JLabel axisNameLabel;
+	JButton setPos;
+
 	int index;
 	String name;
+	String textEntered="";
 	boolean releasedButton=true;
 	CmdManager manag;
 	public AxisControllerItem(AxisController controller,CmdManager manag,String name,int index){
@@ -144,21 +149,21 @@ class AxisControllerItem extends JPanel implements VentilItem, ActionListener, M
 		axisSelect.addKeyListener(this);
 		axisSelect.addActionListener(this);
 		axisPos=new JTextField();
-		axisNameLabel=new JLabel(name);
-		axisNameLabel.setFont(axisNameLabel.getFont().deriveFont(30));
+		axisPos.getDocument().addDocumentListener(this);
 		axisPos.addActionListener(this);
 		axisPos.setPreferredSize(new Dimension(100,25));
 		axisSelect.setPreferredSize(new Dimension(80,25));
-		axisNameLabel.setPreferredSize(new Dimension(50,25));
+		setPos=new JButton("SetPos");
+		setPos.addActionListener(this);
 		manag.addItemPoolingListner(this);
 		setLayout(new FlowLayout());
-		add(axisNameLabel);
 		add(axisPos);
 		add(axisSelect);
+		add(setPos);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		try{
 		if(arg0.getSource()==axisSelect){
 			if (axisSelect.isSelected()) {
 				controller.axisSelect(index);
@@ -167,15 +172,25 @@ class AxisControllerItem extends JPanel implements VentilItem, ActionListener, M
 			}
 		}
 		else if(arg0.getSource()==axisPos){
-			controller.validatePos(index, Double.parseDouble(axisPos.getText()));
+			controller.validatePos(index, Double.parseDouble(textEntered));
 		}
+		else if (arg0.getSource()==setPos){
+			controller.setPos(index, Double.parseDouble(textEntered));
+		}
+		}
+		catch (NumberFormatException e){
+			System.out.println("Cannot convert '"+ textEntered+"' to Double");
+		}
+		textEntered="";
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent arg0) {	
+		textEntered="";
 		controller.incrementPos(index, (double) arg0.getWheelRotation()*-1);
 	}
 
 	public void keyPressed(KeyEvent arg0) {
+		textEntered="";
 		if(releasedButton){
 			switch(arg0.getKeyCode()){
 			case  KeyEvent.VK_PLUS:
@@ -194,6 +209,7 @@ class AxisControllerItem extends JPanel implements VentilItem, ActionListener, M
 	
 	public void actualizePos(double newPos){
 		if(!axisPos.isFocusOwner()){
+			
 			axisPos.setText(newPos+"");
 		}
 	}
@@ -205,6 +221,7 @@ class AxisControllerItem extends JPanel implements VentilItem, ActionListener, M
 	public void keyTyped(KeyEvent arg0) {}
 	
 	public void setSelected(boolean selected){
+		textEntered="";
 		axisSelect.removeActionListener(this);
 		axisSelect.setSelected(selected);
 		axisSelect.addActionListener(this);
@@ -220,7 +237,6 @@ class AxisControllerItem extends JPanel implements VentilItem, ActionListener, M
 
 	public void recievedValue(String val) {
 		setValue(val);
-		
 	}
 
 	public void setItemValue(String val) {
@@ -230,6 +246,16 @@ class AxisControllerItem extends JPanel implements VentilItem, ActionListener, M
 	public String getItemName() {
 		return name;
 	}
+	
+	public void axisPosUpdate(){
+		if(axisPos.isFocusOwner()){
+			textEntered=axisPos.getText();
+		}
+	}
+
+	public void changedUpdate(DocumentEvent arg0) {}
+	public void insertUpdate(DocumentEvent e) {axisPosUpdate();}
+	public void removeUpdate(DocumentEvent e) {axisPosUpdate();}
 }
 
 public class AxisController extends JPanel{
@@ -298,6 +324,11 @@ public class AxisController extends JPanel{
 	public void validatePos(int index,double pos){
 		manag.sendCmd(axisNames[index]+pos+" F"+velocity.getValue());
 		System.out.println(axisNames[index]+pos+" F"+velocity.getValue());
+	}
+	
+	public void setPos(int index,double pos){
+		manag.sendCmd("G29 "+axisNames[index]+pos+" F"+velocity.getValue());
+		System.out.println("G29 "+axisNames[index]+pos+" F"+velocity.getValue());
 	}
 	public void axisSelect(int index){
 		if (index >= 0) {

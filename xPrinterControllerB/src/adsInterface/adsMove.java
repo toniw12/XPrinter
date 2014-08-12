@@ -85,30 +85,30 @@ public class adsMove extends comandInterpreter implements Runnable {
 				override = Double.parseDouble(value);
 				break;
 			case "MotionActive":
-				synchronized (moveSema) {
-					if (value.equals("1")) {
+				if (value.equals("1")) {
+					synchronized (moveSema) {
 						if (!movePermited) {
-							int timeTry=0;
+							int timeTry = 0;
 							ads.write(axisActiveAdsSetting, true);
 							System.out
 									.println("Move: Waiting state Becomes 3...");
 							while (ads.readInt(actStateAdsSetting) != 3) {
 								Thread.sleep(100);
-								timeTry+=100;
-								if(timeTry>=800){
+								timeTry += 100;
+								if (timeTry >= 800) {
 									return "Waiting state 3 timeout";
 								}
 							}
 							System.out.print("Move: Reading actual position");
-
-							currentPos[0] = ads.readDouble(actPosAdsSetting[0]);
-							currentPos[1] = ads.readDouble(actPosAdsSetting[1]);
+							for (int i = 0; i < numAxis; i++) {
+								currentPos[i] = ads.readDouble(actPosAdsSetting[i]);
+							}
 							movePermited = true;
 						}
-					} else {
-						ads.write(axisActiveAdsSetting, false);
-						movePermited = false;
 					}
+				} else {
+					ads.write(axisActiveAdsSetting, false);
+					movePermited = false;
 				}
 				break;
 			default:
@@ -134,6 +134,9 @@ public class adsMove extends comandInterpreter implements Runnable {
 		Matcher m = gcodePattern.matcher(cmd);
 		double nextPos[] = new double[numAxis];
 		boolean incPos[] = new boolean[numAxis];
+		boolean setPos=false;
+		short instrType=0;
+		boolean breakEnable=false;
 		double axisVelocity[] = new double[numAxis];
 		for (int i = 0; i < numAxis; i++) {
 			nextPos[i] = Double.NaN;
@@ -150,6 +153,16 @@ public class adsMove extends comandInterpreter implements Runnable {
 				break;
 			case 'Y':
 				axisN = 1;
+				break;
+			case 'G':
+				if(val==29){
+					setPos=true;
+				}
+				break;
+			case 'D':
+				if(val==1){
+					breakEnable=true;
+				}
 				break;
 			case 'F':
 				new_velocity = val;
@@ -183,7 +196,6 @@ public class adsMove extends comandInterpreter implements Runnable {
 			return null;
 		}
 		synchronized (moveSema) {
-
 			if (ownerThread == null) {
 				ownerThread = Thread.currentThread();
 			} else if (ownerThread != Thread.currentThread()) {
@@ -209,7 +221,12 @@ public class adsMove extends comandInterpreter implements Runnable {
 				}
 			}
 			distance = Math.sqrt(distance);
-			System.out.print("Goto ");
+			if(setPos){
+				System.out.print("SetPos ");
+			}
+			else{
+				System.out.print("Goto ");
+			}
 			for (int i = 0; i < numAxis; i++) {
 
 				if (!Double.isNaN(nextPos[i]) && nextPos[i] != currentPos[i]) {
@@ -222,16 +239,34 @@ public class adsMove extends comandInterpreter implements Runnable {
 					axisVelocity[i] = 10;
 				}
 			}
+			
+			if(setPos){
+				instrType=2;
+				for (int i = 0; i < numAxis; i++) {
+					axisVelocity[i] = 10;
+				}
+			}
+			else{
+				if(breakEnable){
+					instrType=3;
+				}
+				else{
+					instrType=1;
+				}
+			}
 
 			System.out.println();
 
+			
+			
 			for (int i = 0; i < numAxis; i++) {
 				adsBuffer.put(Convert.DoubleToByteArr(currentPos[i]));
 			}
 			for (int i = 0; i < numAxis; i++) {
 				adsBuffer.put(Convert.DoubleToByteArr(axisVelocity[i]));
 			}
-
+			adsBuffer.put(Convert.ShortToByteArr(instrType));
+			
 			ads.write(actItemAdsSetting, adsBuffer.array(),
 					adsBuffer.position());
 
@@ -239,8 +274,16 @@ public class adsMove extends comandInterpreter implements Runnable {
 			setNextStatus(nextStatus);
 			waitStatus(nextStatus);
 			lastCmdTime = System.currentTimeMillis();
+			if(cmdId>=0){
+				System.out.println("Wait ACK");
+				do{
+					Thread.sleep(100);
+				}while(ads.readBit(inMotionAdsSetting)&&movePermited);
+				System.out.println("Movement done");
+				return "Movement=done";
+			}
 		}
-		return "Movement done";
+		return "gcode=OK";
 
 	}
 
