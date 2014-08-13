@@ -40,6 +40,18 @@ public class adsInterface extends comandInterpreter implements Runnable {
 				throw new Exception("Give one String Argument");
 			}
 			return "eventListenerRemoved";
+		case "addPoolingListener":
+			listener.addPoolingListener(args[0]);
+			if(args.length!=1){
+				throw new Exception("Give one String Argument");
+			}
+			return "poolingListenerAdded";
+		case "removePoolingListener":
+			listener.removePoolingListener(args[0]);
+			if(args.length!=1){
+				throw new Exception("Give one String Argument");
+			}
+			return "poolingListenerRemoved";
 		default:
 				return null;
 		}
@@ -68,24 +80,25 @@ public class adsInterface extends comandInterpreter implements Runnable {
 	public static void main(String[] args) {
 		try {
 			adsConnection ads=new adsConnection("ADS_settings.txt");
-			variableListener listener=new variableListener();
-			comandInterpreter[] cmdInerp={listener,ads,new adsMove(ads),new Corona()};
+			variableListener listener=new variableListener(ads);
+			comandInterpreter[] cmdInerp={ads,new adsMove(ads),new Corona()};
 
 			ServerSocket socketServeur = new ServerSocket(port);
 			System.out.println("MultipleSocketServer Initialized");
 
-			Runnable runnable = new adsInterface(new BufferedReader(new InputStreamReader(System.in)),new PrintStream(System.out), cmdInerp,listener);
-			Thread thread = new Thread(runnable);
-			thread.start();
+			Runnable cmdLineInterface = new adsInterface(new BufferedReader(new InputStreamReader(System.in)),new PrintStream(System.out), cmdInerp,listener);
+			new Thread(cmdLineInterface).start();
+			
+			Runnable pollingInterface = new adsInterface(new BufferedReader(new InputStreamReader(listener.getPoolingStream())),new PrintStream(listener.getOutputStream()), cmdInerp,listener);
+			new Thread(pollingInterface).start();
 			
 			while (true) {
 				Socket connection = socketServeur.accept();
 				BufferedReader inputStream = new BufferedReader(new InputStreamReader(
 						connection.getInputStream()));
 				PrintStream	 outputStream = new PrintStream(connection.getOutputStream());
-				runnable = new adsInterface(inputStream,outputStream, cmdInerp,listener);
-				thread = new Thread(runnable);
-				thread.start();
+				Runnable runnable = new adsInterface(inputStream,outputStream, cmdInerp,listener);
+				new Thread(runnable).start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -220,6 +220,11 @@ public class adsConnection extends comandInterpreter{
 		writeAdsItem(adsItem, new JNIByteBuffer(Convert.DoubleToByteArr(var)));
 	}
 	
+	public ByteBuffer read(adsConfigItem adsItem) throws Exception {
+		if(adsItem.iType==ioType.W){throw new Exception("cannot read to writeonly variable :"+adsItem.cmdName);}
+		return readAdsItem(adsItem);
+	}
+	
 	public boolean readBit(adsConfigItem adsItem) throws Exception {
 		if(adsItem.vType!=varType.BIT){throw new Exception("cannot read a BIT from:"+adsItem.cmdName);}
 		if(adsItem.iType==ioType.W){throw new Exception("cannot read to writeonly variable :"+adsItem.cmdName);}
@@ -229,7 +234,7 @@ public class adsConnection extends comandInterpreter{
 		}
 		else{
 			throw new Exception("Cannot get an Integer from '"
-					+ adsItem.cmdName + "'");
+					+ adsItem.cmdName + "' Buffer capacity:"+buffer.capacity());
 		}
 	}
 
@@ -263,9 +268,10 @@ public class adsConnection extends comandInterpreter{
 			item = adsVarMap.get(cmdName);
 		}
 		if (item == null) {
-			System.out.println("Cannot find variable " + cmdName
+			System.err.println("Cannot find variable " + cmdName
 					+ " in configuration File");
 		}
+		
 		return item;
 	}
 	

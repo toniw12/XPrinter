@@ -179,7 +179,7 @@ class AxisControllerItem extends JPanel implements VentilItem, ActionListener, M
 		}
 		}
 		catch (NumberFormatException e){
-			System.out.println("Cannot convert '"+ textEntered+"' to Double");
+			System.err.println("Cannot convert '"+ textEntered+"' to Double");
 		}
 		textEntered="";
 	}
@@ -313,7 +313,7 @@ public class AxisController extends JPanel{
 		double posInc=pos* Double.parseDouble( stepSize.getItemValue());
 		if(axisSelected==index){
 			manag.sendCmd(axisNames[index]+"+="+posInc+" F"+velocity.getValue());
-			System.out.println(axisNames[index]+"+="+posInc+" F"+velocity.getValue());
+			//System.out.println(axisNames[index]+"+="+posInc+" F"+velocity.getValue());
 		}
 	}
 	
@@ -323,12 +323,12 @@ public class AxisController extends JPanel{
 	
 	public void validatePos(int index,double pos){
 		manag.sendCmd(axisNames[index]+pos+" F"+velocity.getValue());
-		System.out.println(axisNames[index]+pos+" F"+velocity.getValue());
+		//System.out.println(axisNames[index]+pos+" F"+velocity.getValue());
 	}
 	
 	public void setPos(int index,double pos){
 		manag.sendCmd("G29 "+axisNames[index]+pos+" F"+velocity.getValue());
-		System.out.println("G29 "+axisNames[index]+pos+" F"+velocity.getValue());
+		//System.out.println("G29 "+axisNames[index]+pos+" F"+velocity.getValue());
 	}
 	public void axisSelect(int index){
 		if (index >= 0) {

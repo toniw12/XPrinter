@@ -130,11 +130,11 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		case TgButton:
 			tgButton.removeActionListener(this);
 			if(Integer.parseInt( val)==1){
-				System.out.println("set selected True");
+				//System.out.println("set selected True");
 				tgButton.setSelected(true);
 			}
 			else{
-				System.out.println("set selected False");
+				//System.out.println("set selected False");
 				tgButton.setSelected(false);
 			}
 			tgButton.addActionListener(this);
@@ -175,7 +175,7 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 	public void actionPerformed(ActionEvent e) {
 		if(type==VentilItemType.CmdButton||type==VentilItemType.TgButton){
 			sendActualValue();
-			System.out.println("send value "+getItemValue());
+			//System.out.println("send value "+getItemValue());
 		}
 	}
 

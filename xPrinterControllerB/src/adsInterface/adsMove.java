@@ -33,7 +33,7 @@ public class adsMove extends comandInterpreter implements Runnable {
 		this.ads = ads;
 		this.ads = ads;
 
-		actItemAdsSetting = ads.adsGetConfig("fifoItem");
+		actItemAdsSetting = ads.adsGetConfig("inFifoItemIo");
 		actPosAdsSetting[0] = ads.adsGetConfig("xActPos");
 		actPosAdsSetting[1] = ads.adsGetConfig("yActPos");
 		inMotionAdsSetting = ads.adsGetConfig("inMotion");
@@ -43,8 +43,8 @@ public class adsMove extends comandInterpreter implements Runnable {
 
 		System.out.println(" X" + currentPos[0] + " Y" + currentPos[1]);
 
-		actStatusAdsSetting = ads.adsGetConfig("actStatus");
-		nextStatusAdsSetting = ads.adsGetConfig("nextStatus");
+		actStatusAdsSetting = ads.adsGetConfig("inFifoStat");
+		nextStatusAdsSetting = ads.adsGetConfig("inFifoNStat");
 		nextStatus = getStatus();
 
 		new Thread(this).start();

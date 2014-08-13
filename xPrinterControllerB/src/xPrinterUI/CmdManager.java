@@ -56,6 +56,7 @@ public class CmdManager implements ActionListener {
 	public void addEventListner(VentilItem item){
 		addItemParamListner(item);
 		connection.write("addEventListener("+item.getItemName()+")");
+		//System.out.println("addEventListener("+item.getItemName()+")");
 	}
 	
 	public void addItemParamListner(VentilItem item) {
@@ -64,8 +65,13 @@ public class CmdManager implements ActionListener {
 	}
 
 	public void addItemPoolingListner(VentilItem item) {
+		/*
 		poolingListner.put(item.getItemName(), item);
-		addItemParamListner(item);
+		
+		*/
+		sendCmd("addPoolingListener("+ item.getItemName()+")");
+		//System.out.println("addPoolingListener("+ item.getItemName()+")");
+		addEventListner(item);
 	}
 
 	public void connRecived(String in) {
