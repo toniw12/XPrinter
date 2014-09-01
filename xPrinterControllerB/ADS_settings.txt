@@ -1,0 +1,26 @@
+
+
+
+actStat,inFifoStat, INT ,rw,Port: 851,IGrp: 0x4020, IOffs: 0x00000000, Len: 2
+nxtStat,inFifoNStat,INT ,rw,Port: 851,IGrp: 0x4020, IOffs: 0x00000002, Len: 2
+state,state,INT ,rw,Port: 851,IGrp: 0x4020, IOffs: 0x00000004, Len: 2
+inMotion,inMotion,BIT ,r,Port: 851,IGrp: 0x4020, IOffs: 0x00000006, Len: 1
+
+axisActive,axisActive,BIT ,w,Port: 851,IGrp: 0x4020, IOffs: 0x00000007, Len: 1
+
+Mx,xActPos, LREAL,rw,Port: 851,IGrp: 0x4020, IOffs: 0x00000008, Len: 8
+My,yActPos, LREAL,rw,Port: 851,IGrp: 0x4020, IOffs: 0x00000010, Len: 8
+
+My,Override, LREAL,rw,Port: 851,IGrp: 0x4020, IOffs: 0x00000018, Len: 8
+
+
+
+Mx,inFifoItemIo, STRUCT,rw,Port: 851,IGrp: 0x4020, IOffs: 0x00000020, Len: 34
+
+Mx,outFifoStat, BIT,rw,Port: 851,IGrp: 0x4020, IOffs: 0x0000007C, Len: 1
+Mx,outFifoNStat, BIT,rw,Port: 851,IGrp: 0x4020, IOffs: 0x0000007E, Len: 1
+Mx,outFifoItemIo, STRUCT,rw,Port: 851,IGrp: 0x4020, IOffs: 0x00000080, Len: 16
+
+
+Q4.2,Plasma_ON,BIT,rw,Port: 11, IGrp: 0x3040040, IOffs: 0xC10031B0, Len: 1
+Q4.1,Plasma_OFF,BIT,rw,Port: 11, IGrp: 0x3040010, IOffs: 0xC1000378, Len: 1

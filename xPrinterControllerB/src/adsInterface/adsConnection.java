@@ -292,7 +292,7 @@ public class adsConnection extends comandInterpreter{
 			switch (adsItem.vType) {
 			case BIT:
 				if (oper == operation.SET)
-					write(adsItem, Integer.parseInt(value, 2));
+					write(adsItem, Integer.parseInt(value, 2)>=1);
 				else
 					throw new Exception("Cannot increment Boolean");
 				break;
@@ -349,6 +349,7 @@ public class adsConnection extends comandInterpreter{
 			}
 			switch (adsItem.vType) {
 			case BIT:
+				return varName + "=" + readBit(adsItem);
 			case INT:
 				return varName + "=" + readInt(adsItem);
 			case LREAL:

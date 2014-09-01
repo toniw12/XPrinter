@@ -172,10 +172,10 @@ class AxisControllerItem extends JPanel implements VentilItem, ActionListener, M
 			}
 		}
 		else if(arg0.getSource()==axisPos){
-			controller.validatePos(index, Double.parseDouble(textEntered));
+			controller.validatePos(index, Calculator.Calculator.convert(textEntered));
 		}
 		else if (arg0.getSource()==setPos){
-			controller.setPos(index, Double.parseDouble(textEntered));
+			controller.setPos(index, Calculator.Calculator.convert(textEntered));
 		}
 		}
 		catch (NumberFormatException e){
