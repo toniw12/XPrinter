@@ -14,6 +14,8 @@ import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import de.beckhoff.jni.tcads.AdsSymbolEntry;
+
 class NullOutputStream extends OutputStream {
 	public void write(int b) throws IOException {
 	}
@@ -27,9 +29,9 @@ public class variableListener extends comandInterpreter implements Runnable{
 	PrintStream poolingOutput;
 	PipedInputStream  poolingStream;
 	
-	adsConfigItem measureStatAdsSetting;
-	adsConfigItem measureNStatAdsSetting;
-	adsConfigItem measureItemIoAdsSetting;
+	AdsSymbolEntry measureStatAdsSetting;
+	AdsSymbolEntry measureNStatAdsSetting;
+	AdsSymbolEntry measureItemIoAdsSetting;
 	
 	public variableListener(adsConnection ads){
 		this.ads=ads;
@@ -38,9 +40,9 @@ public class variableListener extends comandInterpreter implements Runnable{
 		poolingStream = new PipedInputStream ();
 		poolingOutput=new PrintStream(pw);
 		
-		measureStatAdsSetting=ads.adsGetConfig("outFifoStat");
-		measureNStatAdsSetting=ads.adsGetConfig("outFifoNStat");
-		measureItemIoAdsSetting=ads.adsGetConfig("outFifoItemIo");
+		measureStatAdsSetting=ads.getAdsEntry("GVL.outFifoStat");
+		measureNStatAdsSetting=ads.getAdsEntry("GVL.outFifoNStat");
+		measureItemIoAdsSetting=ads.getAdsEntry("GVL.outFifoItemIo");
 		
 		try {
 			pw.connect(poolingStream);

@@ -79,7 +79,7 @@ public class adsInterface extends comandInterpreter implements Runnable {
 
 	public static void main(String[] args) {
 		try {
-			adsConnection ads=new adsConnection("ADS_settings.txt");
+			adsConnection ads=new adsConnection();
 			variableListener listener=new variableListener(ads);
 			comandInterpreter[] cmdInerp={ads,new adsMove(ads),new Corona()};
 

@@ -6,10 +6,10 @@ import java.util.regex.Pattern;
 
 public class comandInterpreter {
 	static Pattern cmdSetPattern = Pattern
-			.compile("\\A\\s*([\\w]+)(=|\\+=|-=)(.+)\\z");
-	static Pattern cmdGetPattern = Pattern.compile("\\A\\s*([\\w]+)\\?\\z");
+			.compile("\\A\\s*([\\w|\\.]+)(=|\\+=|-=)(.+)\\z");
+	static Pattern cmdGetPattern = Pattern.compile("\\A\\s*([\\w|\\.]+)\\?\\z");
 	static Pattern cmdCallPattern = Pattern
-			.compile("\\A\\s*([\\w]+)\\((.*)\\)\\z");
+			.compile("\\A\\s*([\\w|\\.]+)\\((.*)\\)\\z");
 	static Pattern cmdArgPattern = Pattern.compile("(.+)(,)?[a&b]?");//For fixing Matcher.hitEnd does not always work with slices
 
 	enum operation {
@@ -115,7 +115,7 @@ public class comandInterpreter {
 	public static void main(String args[]) {
 		comandInterpreter interp = new comandInterpreter();
 		try {
-			interp.sendCmd("myVar?",-1);
+			interp.sendCmd("my.Var?",-1);
 			interp.sendCmd("myFunc(54,64 asdf)",-1);
 			interp.sendCmd("myVar=43.34",-1);
 		} catch (Exception e) {
