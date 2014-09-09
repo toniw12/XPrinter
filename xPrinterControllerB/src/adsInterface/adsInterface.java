@@ -9,7 +9,10 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+/*
+ * the adsInterface class contains the main method
+ * it crates a new thread for every tcp/ip connection
+ */
 public class adsInterface extends comandInterpreter implements Runnable {
 
 	final static int port = 27015;

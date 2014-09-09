@@ -4,26 +4,26 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ * the comandInterpreter class is intended to extend a class that can interpret commands
+ * the methods callFunc, setVariable, and getVariable are intended to be implemented on the child class
+ * if they are not implemented they always return null
+ */
+
 public class comandInterpreter {
 	static Pattern cmdSetPattern = Pattern
-			.compile("\\A\\s*([\\w|\\.]+)(=|\\+=|-=)(.+)\\z");
-	static Pattern cmdGetPattern = Pattern.compile("\\A\\s*([\\w|\\.]+)\\?\\z");
+			.compile("\\A\\s*([\\w|\\.]+(\\[[0-9]+\\])?)(=|\\+=|-=)(.+)\\z");
+	static Pattern cmdGetPattern = Pattern.compile("\\A\\s*([\\w|\\.]+(\\[[0-9]+\\])?)\\?\\z");
 	static Pattern cmdCallPattern = Pattern
-			.compile("\\A\\s*([\\w|\\.]+)\\((.*)\\)\\z");
-	static Pattern cmdArgPattern = Pattern.compile("(.+)(,)?[a&b]?");//For fixing Matcher.hitEnd does not always work with slices
+			.compile("\\A\\s*([\\w|\\.]+(\\[[0-9]+\\])?)\\((.*)\\)\\z"); 
+	static Pattern cmdArgPattern = Pattern.compile("(.+)(,)?[a&b]?");//For fixing Matcher.hitEnd see:(https://bugs.openjdk.java.net/browse/JDK-5013885)
 
 	enum operation {
 		SET, INCREMENT, DECREMENT
 	}
 
 	public String callFunc(String func, String[] args,int cmdId)throws Exception {
-		/*
-		System.out.print("Call " + func + "(");
-		for (String arg : args) {
-			System.out.print(arg + ",");
-		}
-		System.out.println(")");
-		*/
+		
 		return callFunc(func,args);
 	}
 	
@@ -62,7 +62,9 @@ public class comandInterpreter {
 	}
 
 	public String getVariable(String varName,int cmdId) throws Exception{
-		//System.out.println("Get " + varName);
+		/*
+		System.out.println("Get " + varName);
+		*/
 		return getVariable(varName);
 	}
 	
@@ -78,7 +80,7 @@ public class comandInterpreter {
 		Matcher mSet = cmdSetPattern.matcher(cmd);
 		if (mSet.matches()) {
 			operation oper = operation.SET;
-			switch (mSet.group(2)) {
+			switch (mSet.group(3)) {
 			case "+=":
 				oper = operation.INCREMENT;
 				break;
@@ -86,7 +88,7 @@ public class comandInterpreter {
 				oper = operation.INCREMENT;
 				break;
 			}
-			return setVariable(mSet.group(1), oper, mSet.group(3),cmdId);
+			return setVariable(mSet.group(1), oper, mSet.group(4),cmdId);
 		}
 		Matcher mGet = cmdGetPattern.matcher(cmd);
 		if (mGet.matches()) {
@@ -94,7 +96,7 @@ public class comandInterpreter {
 		}
 		Matcher mCall = cmdCallPattern.matcher(cmd);
 		if (mCall.matches()) {
-			Matcher mArg = cmdArgPattern.matcher(mCall.group(2));
+			Matcher mArg = cmdArgPattern.matcher(mCall.group(3));
 			Vector<String> vString = new Vector<String>();
 			while (mArg.find()) {
 				vString.add(mArg.group(1));
@@ -111,13 +113,15 @@ public class comandInterpreter {
 		}
 		return null;
 	}
-
+	
+	// the void main is only used for tests
 	public static void main(String args[]) {
 		comandInterpreter interp = new comandInterpreter();
 		try {
-			interp.sendCmd("my.Var?",-1);
-			interp.sendCmd("myFunc(54,64 asdf)",-1);
-			interp.sendCmd("myVar=43.34",-1);
+			interp.sendCmd("my.Var[123]?",-1);
+			interp.sendCmd("myFunc[0](54,64 asdf)",-1);
+			interp.sendCmd("myVar[2]=43.34",-1);
+			interp.sendCmd("exit()");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

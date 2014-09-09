@@ -36,10 +36,17 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 	JToggleButton tgButton;
 	VentilItemType type;
 	String name;
+	
 	public StandardVentilItem(CmdManager manag,String name,VentilItemType type){
+		this(manag,name,type,name);
+	}
+	
+	public StandardVentilItem(CmdManager manag,String name,VentilItemType type,String title){
 		this.type=type;
 		this.manag=manag;
 		this.name=name;
+		
+		boolean titled=!title.equals("");
 		
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(100,30));
@@ -49,32 +56,33 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 			spinner.addChangeListener(this);
 			spinner.addMouseWheelListener(this);
 			add(spinner,BorderLayout.CENTER);
-			add(new JLabel(name),BorderLayout.WEST);
+			add(new JLabel(title),BorderLayout.WEST);
 
 			break;
 		case Label:
 			manag.addItemPoolingListner(this);
 			label = new JLabel();
-			label.setText("0");
-			label.setBorder(new TitledBorder(name));
+			label.setText("-");
+			if(titled);
+				label.setBorder(new TitledBorder(title));
 			add(label,BorderLayout.CENTER);
 			break;
 		case CheckBox:
 			checkBox = new JCheckBox();
 			checkBox.addItemListener(this);
 			add(checkBox,BorderLayout.CENTER);
-			add(new JLabel(name),BorderLayout.WEST);
+			add(new JLabel(title),BorderLayout.WEST);
 
 			break;
 		case IoButton:
 		case CmdButton:
-			button = new JButton(name);
+			button = new JButton(title);
 			button.addActionListener(this);
 			button.addKeyListener(this);
 			add(button,BorderLayout.CENTER);
 			break;
 		case TgButton:
-			tgButton=new JToggleButton(name);
+			tgButton=new JToggleButton(title);
 			tgButton.addActionListener(this);
 			add(tgButton,BorderLayout.CENTER);
 			break;
@@ -189,14 +197,11 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		}
 	}
 
-
 	public void keyReleased(KeyEvent arg0) {
 		if(type==VentilItemType.IoButton){
 			sendActualValue();
 		}
 	}
-
-
 	@Override
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub

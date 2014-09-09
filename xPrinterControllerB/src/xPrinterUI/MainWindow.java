@@ -34,8 +34,9 @@ import org.w3c.dom.Element;
 
 
 public class MainWindow extends JFrame {
-
-	JPanel test;
+	IoControl ioContorl;
+	TempController tempControl;
+	AxisController controller;
 
 	Box bv = Box.createVerticalBox();
 	String hostName = "localhost";
@@ -43,9 +44,8 @@ public class MainWindow extends JFrame {
 	CmdManager manag;
 	JTabbedPane tabbedPane = new JTabbedPane();
 	String[] axisNames={"X","Y","Z"};
-	AxisController controller;
+	
 
-	int num = 2;
 
 	public MainWindow(String args[]) {
 		super("Ventil steerung");
@@ -57,43 +57,11 @@ public class MainWindow extends JFrame {
 			portNumber=Integer.parseInt( args[1]);
 		}
 		manag=new CmdManager(hostName,portNumber);
+		ioContorl=new IoControl(manag);
+		tempControl=new TempController(manag);
 		controller=new AxisController(axisNames,manag);
-		JOptionPane.setRootFrame(this);
-
-		test = new JPanel();
-		BoxLayout box=new BoxLayout(test, BoxLayout.Y_AXIS);
-		test.setLayout(box);
-		
-		//"test.add(new StandardVentilItem(manag,"&$A$1&A9&"."&B9&$A$1&",VentilItemType."&SI(EXACT(F9;"Q");"CheckBox";"Label")&")));"
-		
-		test.add(new StandardVentilItem(manag,"Plasma.ON",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"Plasma.OFF",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"Plasma.AirPressure",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"Plasma.Error",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"Flamme.Start",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"Flamme.Reset",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"Flamme.ON",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"Flamme.AirPressure",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"Flamme.GasPressure",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"Flamme.Error",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"UV.LampON",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"UV.PowerBit0",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"UV.PowerBit1",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"UV.PowerBit2",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"UV.ShutterRun",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"UV.Ready",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"UV.LampFault",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"UV.ShutterOpen",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"UV.ShutterClosed",VentilItemType.Label));
-		test.add(new StandardVentilItem(manag,"Substr.Heiz",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"Substr.VakumPumpe",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"FlZuf.Pumpe1",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"FlZuf.Pumpe2",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"FlZuf.Pumpe3",VentilItemType.CheckBox));
-		test.add(new StandardVentilItem(manag,"FlZuf.Pumpe4",VentilItemType.CheckBox));
-
-
-		tabbedPane.addTab("Beckhoff", test);
+		tabbedPane.addTab("Beckhoff", ioContorl);
+		tabbedPane.addTab("Temperatur", tempControl);
 		tabbedPane.addTab("Position", controller);
 		
 		

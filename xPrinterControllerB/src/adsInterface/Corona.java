@@ -14,6 +14,13 @@ import javax.swing.JOptionPane;
 import adsInterface.comandInterpreter.operation;
 import gnu.io.*;
 
+/*
+ * The corona class communicates over RS232 with the corona machine
+ * if the String comPort is not null then it shows a inputDialog to select the Serial port
+ * this class sends stores all redden and written variables
+ * the variables are synchronized with the corona machine tree times per second
+ */
+
 public class Corona extends comandInterpreter implements Runnable {
 	InputStream inputStream;
 	OutputStream outputStream;

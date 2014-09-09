@@ -7,6 +7,10 @@ import java.util.regex.Pattern;
 import de.beckhoff.jni.Convert;
 import de.beckhoff.jni.tcads.AdsSymbolEntry;
 
+/*
+ * the adsMove class interprets g-code like syntax
+ * it then sends the commands to the fifo of the TwinCat programm
+ */
 public class adsMove extends comandInterpreter implements Runnable {
 	Object moveSema = new Object();
 	static Pattern gcodePattern = Pattern

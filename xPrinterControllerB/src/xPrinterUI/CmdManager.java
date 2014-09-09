@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 public class CmdManager implements ActionListener {
-	Pattern pat= Pattern.compile("@([\\d]+)\\s*(Success:)?([\\w|\\.]+)\\s*=(.+)\\s*");
+	Pattern pat= Pattern.compile("@([\\d]+)\\s*(Success:)?([\\w|\\.|\\[|\\]]+)\\s*=(.+)\\s*");
 	TcpIpConnection connection;
 
 	Random randomGenerator = new Random();

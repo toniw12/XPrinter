@@ -21,6 +21,11 @@ class NullOutputStream extends OutputStream {
 	}
 }
 
+/* 
+ * The class variableListner pools all variable in the poolingList
+ * It also reads the fifo of the measured positions
+ */
+
 public class variableListener extends comandInterpreter implements Runnable{
 	adsConnection ads;
 	Map<String,Vector<adsInterface>> eventMap=new HashMap<String,Vector<adsInterface>>();

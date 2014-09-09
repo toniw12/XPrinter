@@ -42,7 +42,11 @@ class ValueString {
         return label;
     }
 }
-
+/*
+ * the adsConnection class is the interface with TwinCat, it can access variables by name
+ * once the ads parameters are known the parameters are stored, so the next time that the variable is used 
+ * its not necessary to get the ads parameters.
+ */
 public class adsConnection extends comandInterpreter{
 
 	Semaphore semaphore = new Semaphore(1);
@@ -143,7 +147,6 @@ public class adsConnection extends comandInterpreter{
 	}
 	
 	public void write(AdsSymbolEntry adsItem, byte[] data,int numBytes) throws Exception {
-		//if(adsItem.getSize()!=numBytes){throw new Exception("cannot write "+ numBytes+ " bytes to:"+adsItem.getName());}
 		writeAdsItem(adsItem, new JNIByteBuffer(data));
 	}
 
@@ -244,7 +247,6 @@ public class adsConnection extends comandInterpreter{
 	}
 	
 	public void printEntryProprieties(AdsSymbolEntry adsSymbolEntry){
-        // Write information to stdout
         System.out.println("Name:\t\t"
                             + adsSymbolEntry.getName());
         System.out.println("Index Group:\t"
