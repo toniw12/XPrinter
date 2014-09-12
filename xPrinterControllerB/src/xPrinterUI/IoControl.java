@@ -36,6 +36,5 @@ public class IoControl extends JPanel {
 		add(new StandardVentilItem(manag,"FlZuf.Pumpe3",VentilItemType.CheckBox));
 		add(new StandardVentilItem(manag,"FlZuf.Pumpe4",VentilItemType.CheckBox));
 		add(new StandardVentilItem(manag,"Fan.ON",VentilItemType.CheckBox));
-
 	}
 }

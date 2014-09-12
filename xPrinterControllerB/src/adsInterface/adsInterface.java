@@ -20,7 +20,7 @@ import com.sanityinc.jargs.CmdLineParser.Option;
  */
 public class adsInterface extends comandInterpreter implements Runnable {
 
-	final static int port = 27015;
+	final static int port = 27015; //TCP/IP port
 	static Pattern cmdPattern = Pattern
 			.compile("\\A\\s*(\\@[0-9]+)\\s*");
 	Socket socketClient;
@@ -134,10 +134,8 @@ public class adsInterface extends comandInterpreter implements Runnable {
 			variableListener listener=new variableListener(ads);
 			
 			ServerSocket socketServeur = new ServerSocket(port);
-			System.out.println("MultipleSocketServer Initialized");
 			Runnable cmdLineInterface = new adsInterface(new BufferedReader(new InputStreamReader(System.in)),new PrintStream(System.out), cmdInerp,listener);
 			new Thread(cmdLineInterface).start();
-			
 			Runnable pollingInterface = new adsInterface(new BufferedReader(new InputStreamReader(listener.getPoolingStream())),new PrintStream(listener.getOutputStream()), cmdInerp,listener);
 			new Thread(pollingInterface).start();
 			
@@ -170,7 +168,7 @@ public class adsInterface extends comandInterpreter implements Runnable {
 				int cmdId;
 				boolean error=false;
 				try{
-				inputLine = inputStream.readLine();
+					inputLine = inputStream.readLine();
 				} catch (IOException e) {
 					if(socketClient!=null){
 						System.err.println("Error while read line from "+socketClient.getInetAddress());
@@ -216,7 +214,6 @@ public class adsInterface extends comandInterpreter implements Runnable {
 					}
 					else if(cmdId!=-1){
 						outputStream.println("@"+cmdId+" "+retMsg);
-						
 					}
 				}
 				if(!error){

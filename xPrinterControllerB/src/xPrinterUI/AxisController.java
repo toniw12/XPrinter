@@ -349,5 +349,4 @@ public class AxisController extends JPanel{
 		frame.pack();
 		frame.setVisible(true);
 	}
-
 }

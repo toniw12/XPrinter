@@ -25,8 +25,6 @@ class TempController extends JPanel{
 	
 	String[] regulatorNames={"Test Regler",null,null,"Kein Regler"};
 	
-
-	
 	TabDes tab[]={new TabDes("temperaturRegler.tempSoll[%d]", "Soll [°C]", VentilItemType.Spinner),
 			new TabDes("temperaturRegler.tempIst[%d]", "Ist [°C]", VentilItemType.Label),
 			new TabDes("temperaturRegler.PWMval[%d]", "PWM [%]", VentilItemType.Label)};

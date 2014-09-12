@@ -45,13 +45,9 @@ public class MainWindow extends JFrame {
 	JTabbedPane tabbedPane = new JTabbedPane();
 	String[] axisNames={"X","Y","Z"};
 	
-
-
 	public MainWindow(String arg) {
 		super("Ventil steerung");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		System.out.println("arg=" +arg);
 		
 		if(!arg.equals("")){
 			if (arg.contains(":")) {
@@ -69,57 +65,28 @@ public class MainWindow extends JFrame {
 			}
 		}
 		
-
 		manag=new CmdManager(hostName,portNumber);
 		ioContorl=new IoControl(manag);
 		tempControl=new TempController(manag);
 		controller=new AxisController(axisNames,manag);
+		
 		tabbedPane.addTab("Beckhoff", ioContorl);
 		tabbedPane.addTab("Temperatur", tempControl);
 		tabbedPane.addTab("Position", controller);
 		
-		
-		 getContentPane().add(tabbedPane, BorderLayout.CENTER);
-
+		getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		setVisible(true);
-		
+
 		setSize(new Dimension(350,500));
-
-		addWindowListener(new WindowListener() {
-			public void windowClosed(WindowEvent arg0) {
-			}
-
-			public void windowActivated(WindowEvent arg0) {
-			}
-
-			public void windowClosing(WindowEvent arg0) {
-
-			}
-
-			public void windowDeactivated(WindowEvent arg0) {
-			}
-
-			public void windowDeiconified(WindowEvent arg0) {
-			}
-
-			public void windowIconified(WindowEvent arg0) {
-			}
-
-			public void windowOpened(WindowEvent arg0) {
-			}
-		});
 	}
 
 	
 	public static void main(String[] args) {
-		
 		if(args.length==1){
 			new MainWindow(args[0]);
 		}
 		else{
 			new MainWindow("");
 		}
-		
-		
 	}
 }

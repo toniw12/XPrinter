@@ -124,7 +124,6 @@ public class adsMove extends comandInterpreter implements Runnable {
 		if (oper != operation.SET) {
 			throw new Exception("Cannot increment " + varName);
 		}
-		System.out.println(varName + "=" + value);
 		return varName + "=" + value;
 
 	}
@@ -207,7 +206,7 @@ public class adsMove extends comandInterpreter implements Runnable {
 				ownerThread = Thread.currentThread();
 			} else if (ownerThread != Thread.currentThread()) {
 				throw new Exception(
-						"The motion Card is used by an oher Client try later");
+						"The motion Card is used by an oher Client");
 			}
 			if (!movePermited) {
 				throw new Exception("Motion not activated");
@@ -261,11 +260,8 @@ public class adsMove extends comandInterpreter implements Runnable {
 					instrType=1;
 				}
 			}
-
 			System.out.println();
 
-			
-			
 			for (int i = 0; i < numAxis; i++) {
 				adsBuffer.put(Convert.DoubleToByteArr(currentPos[i]));
 			}
@@ -291,7 +287,6 @@ public class adsMove extends comandInterpreter implements Runnable {
 			}
 		}
 		return "gcode=OK";
-
 	}
 
 	void waitStatus(int status) throws Exception {
@@ -303,7 +298,6 @@ public class adsMove extends comandInterpreter implements Runnable {
 				e.printStackTrace();
 			}
 			readStatus = ads.readInt(actStatusAdsSetting);
-
 		} while (status != readStatus);
 	}
 

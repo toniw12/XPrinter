@@ -104,15 +104,11 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		}
 	}
 	public void stateChanged(ChangeEvent e) {
-		//System.out.println( e);
 		sendActualValue();
 	}
 	
-
-	
 	public void sendActualValue(){
 		manag.sendCmd(this);
-
 	}
 	
 	public void recievedValue(String val){
@@ -189,7 +185,6 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 	public void actionPerformed(ActionEvent e) {
 		if(type==VentilItemType.CmdButton||type==VentilItemType.TgButton){
 			sendActualValue();
-			//System.out.println("send value "+getItemValue());
 		}
 	}
 

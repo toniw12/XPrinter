@@ -118,7 +118,7 @@ public class adsConnection extends comandInterpreter{
 		} else {
 			System.out.println("ADS: Open communication!");
 		}
-		//addr.setPort(AdsCallDllFunction.AMSPORT_R0_PLC_RTS1);
+
 		addr.setPort(851);
 	}
 
