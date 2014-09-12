@@ -1,14 +1,19 @@
 package adsInterface;
 
-import java.io.*;
-import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Vector;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import xPrinterUI.MainWindow;
+
+import com.sanityinc.jargs.CmdLineParser;
+import com.sanityinc.jargs.CmdLineParser.Option;
 /*
  * the adsInterface class contains the main method
  * it crates a new thread for every tcp/ip connection
@@ -79,16 +84,57 @@ public class adsInterface extends comandInterpreter implements Runnable {
 		}
 	}
 
+    private static void printUsage() {
+        System.err.println(
+"Usage: OptionTest [{-c,--debug} comPort] [{-a,--ads} AdsToJava.dll] [{-m,--move}] [{-i,--User interface}]");
+    }
 
 	public static void main(String[] args) {
-		try {
-			adsConnection ads=new adsConnection();
-			variableListener listener=new variableListener(ads);
-			comandInterpreter[] cmdInerp={ads,new adsMove(ads),new Corona()};
 
+		CmdLineParser parser = new CmdLineParser();
+
+		Option<String> coronaOpt = parser.addStringOption('c', "corona");
+		Option<String> adsOpt = parser.addStringOption('a', "ads");
+		Option<Boolean> moveOpt = parser.addBooleanOption('m', "move");
+		Option<String> interfaceOpt = parser.addStringOption('i', "interface");
+
+		try {
+			parser.parse(args);
+		} catch (CmdLineParser.OptionException e) {
+			System.err.println(e.getMessage());
+			printUsage();
+			System.exit(2);
+		}
+		String adsStr=parser.getOptionValue(adsOpt);
+		String coronaStr=parser.getOptionValue(coronaOpt);
+		Boolean moveBool=parser.getOptionValue(moveOpt);
+		String interfaceStr=parser.getOptionValue(interfaceOpt);
+		
+		if(interfaceStr!=null){
+			new MainWindow(interfaceStr);
+			// MainWindow will block until the end
+			return;
+		}
+		
+		try {
+			//"C:/TwinCAT/AdsApi/AdsToJava/x64/AdsToJava.dll"
+			adsConnection ads=null;
+			
+			Vector<comandInterpreter> cmdInerpVect=new Vector<comandInterpreter>();
+			if(adsStr!=null){
+				ads=new adsConnection(adsStr);
+				cmdInerpVect.add(ads);
+				if(coronaStr!=null){cmdInerpVect.add(new Corona(coronaStr));}
+				if(moveBool!=null){cmdInerpVect.add(new adsMove(ads));}
+			}
+			
+			if(coronaStr!=null){cmdInerpVect.add(new Corona(coronaStr));}
+			
+			comandInterpreter[] cmdInerp=(comandInterpreter[])cmdInerpVect.toArray(new comandInterpreter[cmdInerpVect.size()]);
+			variableListener listener=new variableListener(ads);
+			
 			ServerSocket socketServeur = new ServerSocket(port);
 			System.out.println("MultipleSocketServer Initialized");
-
 			Runnable cmdLineInterface = new adsInterface(new BufferedReader(new InputStreamReader(System.in)),new PrintStream(System.out), cmdInerp,listener);
 			new Thread(cmdLineInterface).start();
 			
@@ -166,7 +212,7 @@ public class adsInterface extends comandInterpreter implements Runnable {
 				synchronized (outputStream) {
 					if(error){
 						System.out.println("Error: ("+cmdLine+"): "+(cmdId==-1?"":"@"+cmdId)+retMsg);
-						outputStream.println(cmdId==-1?"":"@"+cmdId+" Error: "+retMsg);
+						outputStream.println((cmdId==-1?"":("@"+cmdId))+" Error: "+retMsg);
 					}
 					else if(cmdId!=-1){
 						outputStream.println("@"+cmdId+" "+retMsg);

@@ -44,10 +44,18 @@ public class variableListener extends comandInterpreter implements Runnable{
 		PipedOutputStream  pw = new PipedOutputStream ();
 		poolingStream = new PipedInputStream ();
 		poolingOutput=new PrintStream(pw);
-		
-		measureStatAdsSetting=ads.getAdsEntry("GVL.outFifoStat");
-		measureNStatAdsSetting=ads.getAdsEntry("GVL.outFifoNStat");
-		measureItemIoAdsSetting=ads.getAdsEntry("GVL.outFifoItemIo");
+		if (ads != null) {
+			measureStatAdsSetting = ads.getAdsEntry("GVL.outFifoStat");
+			measureNStatAdsSetting = ads.getAdsEntry("GVL.outFifoNStat");
+			measureItemIoAdsSetting = ads.getAdsEntry("GVL.outFifoItemIo");
+
+			if (measureStatAdsSetting == null || measureNStatAdsSetting == null
+					|| measureItemIoAdsSetting == null) {
+				System.out
+						.println("Cannot get Status Settings please controlle the TwinCAT project");
+				System.exit(1);
+			}
+		}
 		
 		try {
 			pw.connect(poolingStream);
@@ -122,13 +130,18 @@ public class variableListener extends comandInterpreter implements Runnable{
 					poolingOutput.println(cmdName+"?");
 				}
 				
-				//Read Mesurement Fifo
-				while((measureFifoReadState=ads.readBit(measureNStatAdsSetting))!=measureFifoState){
-					ByteBuffer buffer=ads.read(measureItemIoAdsSetting);
-					sendCmd("Measure=["+buffer.getDouble()+","+buffer.getDouble()+"]");
-					measureFifoState=measureFifoReadState;
-					ads.write(measureStatAdsSetting, measureFifoState);
-					Thread.sleep(5);
+				if (ads != null) {
+					// Read Mesurement Fifo
+					while ((measureFifoReadState = ads
+							.readBit(measureNStatAdsSetting)) != measureFifoState) {
+						ByteBuffer buffer = ads.read(measureItemIoAdsSetting);
+						sendCmd("Measure=[" + buffer.getDouble() + ","
+								+ buffer.getDouble() + "," + buffer.getDouble()
+								+ "]");
+						measureFifoState = measureFifoReadState;
+						ads.write(measureStatAdsSetting, measureFifoState);
+						Thread.sleep(5);
+					}
 				}
 				
 				poolingOutput.flush();

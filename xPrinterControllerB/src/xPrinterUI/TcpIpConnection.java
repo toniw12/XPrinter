@@ -34,7 +34,8 @@ public class TcpIpConnection implements Runnable {
 			Thread thread = new Thread(this);
 			thread.start();
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Cannot connect to " + hostName+ " on port "+ portNumber);
+			System.exit(1);
 		}
 	}
 

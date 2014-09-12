@@ -10,8 +10,8 @@ public class IoControl extends JPanel {
 		BoxLayout ioControlLayout=new BoxLayout(this, BoxLayout.Y_AXIS);
 		setLayout(ioControlLayout);
 		//"add(new StandardVentilItem(manag,"&$A$1&A9&"."&B9&$A$1&",VentilItemType."&SI(EXACT(F9;"Q");"CheckBox";"Label")&")));"
-		add(new StandardVentilItem(manag,"Plasma.ON",VentilItemType.CheckBox));
-		add(new StandardVentilItem(manag,"Plasma.OFF",VentilItemType.CheckBox));
+		add(new StandardVentilItem(manag,"Plasma.ON",VentilItemType.IoButton));
+		add(new StandardVentilItem(manag,"Plasma.OFF",VentilItemType.TgButton));
 		add(new StandardVentilItem(manag,"Plasma.AirPressure",VentilItemType.Label));
 		add(new StandardVentilItem(manag,"Plasma.Error",VentilItemType.Label));
 		add(new StandardVentilItem(manag,"Flamme.Start",VentilItemType.CheckBox));
@@ -35,5 +35,7 @@ public class IoControl extends JPanel {
 		add(new StandardVentilItem(manag,"FlZuf.Pumpe2",VentilItemType.CheckBox));
 		add(new StandardVentilItem(manag,"FlZuf.Pumpe3",VentilItemType.CheckBox));
 		add(new StandardVentilItem(manag,"FlZuf.Pumpe4",VentilItemType.CheckBox));
+		add(new StandardVentilItem(manag,"Fan.ON",VentilItemType.CheckBox));
+
 	}
 }

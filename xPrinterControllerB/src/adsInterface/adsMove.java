@@ -336,15 +336,4 @@ public class adsMove extends comandInterpreter implements Runnable {
 			}
 		}
 	}
-
-	public static void main(String args[]) {
-		try {
-			adsConnection config = new adsConnection();
-			adsMove move = new adsMove(config);
-			System.out.println("Move returned:" + move.sendCmd("X2Y2F5",-1));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 }

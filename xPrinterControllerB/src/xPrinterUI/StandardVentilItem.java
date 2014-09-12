@@ -9,6 +9,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
@@ -27,7 +29,7 @@ enum VentilItemType {
     Spinner,Label,CheckBox,CmdButton,TgButton,IoButton
 }
 
-class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListener, ChangeListener, ItemListener, ActionListener, KeyListener{
+class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListener, ChangeListener, ItemListener, ActionListener, KeyListener, MouseListener{
 	CmdManager manag;
 	JSpinner spinner;
 	JLabel label;
@@ -75,10 +77,14 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 
 			break;
 		case IoButton:
+			button = new JButton(title);
+			button.addKeyListener(this);
+			button.addMouseListener(this);
+			add(button,BorderLayout.CENTER);
+			break;
 		case CmdButton:
 			button = new JButton(title);
 			button.addActionListener(this);
-			button.addKeyListener(this);
 			add(button,BorderLayout.CENTER);
 			break;
 		case TgButton:
@@ -168,7 +174,7 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 		case CmdButton:
 			return "1";
 		case IoButton:
-			return button.isSelected()?"1":"0";
+			return button.getModel().isPressed()?"1":"0";
 		case TgButton:	
 			return tgButton.isSelected()?"1":"0";
 			
@@ -202,9 +208,17 @@ class StandardVentilItem extends JPanel implements VentilItem, MouseWheelListene
 			sendActualValue();
 		}
 	}
-	@Override
-	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
+	public void keyTyped(KeyEvent arg0) {}
+	public void mouseClicked(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {}
+	
+	public void mousePressed(MouseEvent e) {
+		keyPressed(null);
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		keyReleased(null);
 	}
 }

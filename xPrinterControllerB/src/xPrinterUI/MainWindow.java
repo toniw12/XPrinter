@@ -47,15 +47,29 @@ public class MainWindow extends JFrame {
 	
 
 
-	public MainWindow(String args[]) {
+	public MainWindow(String arg) {
 		super("Ventil steerung");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		if(args.length>0){
-			hostName=args[0];
+		
+		System.out.println("arg=" +arg);
+		
+		if(!arg.equals("")){
+			if (arg.contains(":")) {
+			    String[] args=arg.split(":");
+			    if(args.length==2){
+			    	hostName=args[0];
+			    	portNumber=Integer.parseInt( args[1]);
+			    }
+			    else{
+			    	System.out.println("invalid MainWindow arguments");
+			    	System.exit(1);
+			    }
+			} else {
+				hostName=arg;
+			}
 		}
-		if(args.length>1){
-			portNumber=Integer.parseInt( args[1]);
-		}
+		
+
 		manag=new CmdManager(hostName,portNumber);
 		ioContorl=new IoControl(manag);
 		tempControl=new TempController(manag);
@@ -69,7 +83,7 @@ public class MainWindow extends JFrame {
 
 		setVisible(true);
 		
-		setSize(new Dimension(300,350));
+		setSize(new Dimension(350,500));
 
 		addWindowListener(new WindowListener() {
 			public void windowClosed(WindowEvent arg0) {
@@ -98,6 +112,14 @@ public class MainWindow extends JFrame {
 
 	
 	public static void main(String[] args) {
-		new MainWindow(args);
+		
+		if(args.length==1){
+			new MainWindow(args[0]);
+		}
+		else{
+			new MainWindow("");
+		}
+		
+		
 	}
 }

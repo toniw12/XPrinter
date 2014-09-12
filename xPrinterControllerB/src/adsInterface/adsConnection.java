@@ -93,8 +93,20 @@ public class adsConnection extends comandInterpreter{
         new ValueString(ADST_MAXTYPES, "ADST_MAXTYPES")
     };
 
-	public adsConnection() throws Exception{
+	public adsConnection(String adsDll) throws Exception{
 		long err;
+		
+		
+		if (adsDll != null) {
+			try {
+				System.load(adsDll);
+			} catch (UnsatisfiedLinkError e) {
+				System.err.println("Native code library failed to load.\n" + e);
+				System.exit(1);
+			}
+		}
+		
+		
 		// Open communication
 		AdsCallDllFunction.adsPortOpen();
 
@@ -226,7 +238,11 @@ public class adsConnection extends comandInterpreter{
 	                                    readBuff,
 	                                    writeBuff.getUsedBytesCount(),
 	                                    writeBuff);
-	                if(err!=0) {
+	                if(err==0x6){
+	                	System.out.println("ADS Error 6 please start TwinCAT");
+	                	System.exit(1);
+	                }
+	                else if(err!=0) {
 	                    System.out.println("Cannot find variable "+ cmdName +" Error: 0x"
 	                            + Long.toHexString(err));
 	                    
@@ -351,7 +367,7 @@ public class adsConnection extends comandInterpreter{
 
 	public static void main(String args[]) {
 		try {
-			adsConnection config = new adsConnection();
+			adsConnection config = new adsConnection(null);
 			System.out.println(config.sendCmd("MAIN.iCounter?"));
 			// config.sendCmd("Flamme_Error=0");
 			config.sendCmd("MAIN.iCounter=1");
